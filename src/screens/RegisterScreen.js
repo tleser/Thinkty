@@ -1,22 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { supabase } from '../lib/supabase';
+import { Image } from 'react-native';
 
 const RegisterScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const handleRegister = async () => {
-        const { error } = await supabase.auth.signUp({
-            email,
-            password,
-        });
+        const { error } = await supabase.auth.signUp({ email, password });
 
         if (error) {
             Alert.alert('Erreur', error.message);
         } else {
-            Alert.alert('Succès', 'Un email de confirmation a été envoyé.');
-            navigation.navigate('Login');
+            Alert.alert('Succès', 'Compte créé ! Vérifie ton email.');
         }
     };
 
@@ -56,6 +53,7 @@ const RegisterScreen = ({ navigation }) => {
                     Se connecter
                 </Text>
             </Text>
+            <Text style={styles.copyright}>© 2025 Tobias Leser</Text>
         </View>
     );
 };
@@ -64,13 +62,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center', // Centre tous les éléments
+        alignItems: 'center',
         padding: 20,
     },
     logo: {
-        width: 100,  // Taille de l'image
-        height: 100,
-        marginBottom: 20,  // Espacement entre l'image et le titre
+        width: 300,
+        height: 200,
+        marginBottom: 20,
     },
     title: {
         fontSize: 36,
@@ -96,7 +94,7 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         marginTop: 20,
-        width: '100%', // Largeur du bouton
+        width: '100%',
     },
     loginText: {
         textAlign: 'center',
@@ -105,6 +103,15 @@ const styles = StyleSheet.create({
     link: {
         color: '#2196F3',
         textDecorationLine: 'underline',
+    },
+    copyright: {
+        position: 'absolute',
+        bottom: 30,
+        left: 0,
+        right: 0,
+        fontSize: 15,
+        color: '#2196F3',
+        textAlign: 'center',
     },
 });
 

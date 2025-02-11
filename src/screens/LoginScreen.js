@@ -11,17 +11,15 @@ const LoginScreen = ({ navigation }) => {
 
         if (error) {
             Alert.alert('Erreur', error.message);
-        } else {
-            Alert.alert('Connexion réussie', 'Bienvenue !');
-            // Ici, tu peux rediriger vers l'écran principal
         }
     };
+
 
     return (
         <View style={styles.container}>
             {/* Ajout de l'image ici */}
             <Image
-                source={require('../img/thinktyapp.png')}  // Image locale dans /src/img
+                source={require('../img/thinktyapp.png')}
                 style={styles.logo}
                 resizeMode="contain"
             />
@@ -53,6 +51,7 @@ const LoginScreen = ({ navigation }) => {
                     Inscription
                 </Text>
             </Text>
+            <Text style={styles.copyright}>© 2025 Tobias Leser</Text>
         </View>
     );
 };
@@ -61,13 +60,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center', // Centrer les éléments
+        alignItems: 'center',
         padding: 20,
     },
     logo: {
-        width: 100,  // Ajuste la taille de l'image
-        height: 100,
-        marginBottom: 20,  // Espacement entre l'image et le titre
+        width: 300,
+        height: 200,
+        marginBottom: 20,
     },
     title: {
         fontSize: 36,
@@ -93,7 +92,7 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         marginTop: 20,
-        width: '100%', // Largeur du bouton
+        width: '100%',
     },
     registerText: {
         textAlign: 'center',
@@ -102,6 +101,15 @@ const styles = StyleSheet.create({
     link: {
         color: '#2196F3',
         textDecorationLine: 'underline',
+    },
+    copyright: {
+        position: 'absolute',
+        bottom: 30,
+        left: 0,
+        right: 0,
+        fontSize: 15,
+        color: '#2196F3',
+        textAlign: 'center',
     },
 });
 

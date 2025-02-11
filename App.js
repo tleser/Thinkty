@@ -1,7 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import AuthNavigator from './src/navigation/AuthNavigator';
+import AppNavigator from './src/navigation/AppNavigator';
 import { supabase } from './src/lib/supabase';
 
 export default function App() {
@@ -14,7 +14,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      {session ? <Text>Bienvenue ! (Ajoute ton AppNavigator ici)</Text> : <AuthNavigator />}
+      {session ? <AppNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );
 }
