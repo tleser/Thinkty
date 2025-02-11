@@ -7,7 +7,7 @@ const Stack = createStackNavigator();
 const AppNavigator = () => {
     return (
         <Stack.Navigator>
-            <Stack.Screen name="Main" component={MainScreen} />
+            <Stack.Screen name="Acceuil" component={MainScreen} />
         </Stack.Navigator>
     );
 };
