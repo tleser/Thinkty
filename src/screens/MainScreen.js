@@ -13,19 +13,13 @@ const MainScreen = ({ navigation }) => {
         navigation.navigate('Profile'); // Remplace 'Profile' par le nom de l'écran du profil si nécessaire
     };
 
-    const handleSettings = () => {
-        // Logic to navigate to the Settings screen
-        navigation.navigate('Settings'); // Remplace 'Settings' par le nom de l'écran des paramètres si nécessaire
-    };
-
     const handleAbout = () => {
         // Logic to navigate to the About screen
-        navigation.navigate('About'); // Remplace 'About' par le nom de l'écran À propos si nécessaire
+        navigation.navigate('À propos'); // Remplace 'About' par le nom de l'écran À propos si nécessaire
     };
 
     return (
         <View style={styles.container}>
-            {/* Boutons "Paramètres" et "À propos" tout en haut */}
             <View style={styles.headerButtonContainer}>
                 <TouchableOpacity style={styles.headerButton} onPress={handleAbout}>
                     <Text style={styles.headerButtonText}>À propos</Text>
@@ -42,7 +36,7 @@ const MainScreen = ({ navigation }) => {
             <Text style={styles.title}>Bienvenue sur Thinkty</Text>
             <Text style={styles.slogan}>Think in Security</Text>
 
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Mes Tâches')}>
                 <Text style={styles.buttonText}>📋 Mes Tâches</Text>
             </TouchableOpacity>
 
