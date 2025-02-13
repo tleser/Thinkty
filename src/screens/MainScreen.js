@@ -28,7 +28,7 @@ const MainScreen = ({ navigation }) => {
 
             {/* Image en dessous des boutons */}
             <Image
-                source={require('../img/thinktyapp.png')}  // Assure-toi que le chemin de l'image est correct
+                source={require('../img/thinktyapp.png')}
                 style={styles.logo}
                 resizeMode="contain"
             />
@@ -37,15 +37,15 @@ const MainScreen = ({ navigation }) => {
             <Text style={styles.slogan}>Think in Security</Text>
 
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Mes Tâches')}>
-                <Text style={styles.buttonText}>📋 Mes Tâches</Text>
+                <Text style={styles.buttonText}> Mes Tâches 📋</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Mes Notes')}>
+                <Text style={styles.buttonText}>Mes Notes 📝</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>📝 Mes Notes</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>🔑 Mes Mots de Passe</Text>
+                <Text style={styles.buttonText}>   Mes Mots de Passe 🔑</Text>
             </TouchableOpacity>
 
             <View style={styles.footer}>
