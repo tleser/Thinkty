@@ -14,7 +14,6 @@ const NotesScreen = () => {
     const [userId, setUserId] = useState(null);
     const navigation = useNavigation();
 
-    // Charger les notes au démarrage
     useEffect(() => {
         const fetchNotes = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -25,13 +24,10 @@ const NotesScreen = () => {
             const { data, error } = await supabase
                 .from('notes')
                 .select('*')
-                .eq('user_id', user.id)  // Utilisation correcte de "user_id"
+                .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
-            if (error) {
-                console.error('❌ Erreur de chargement des notes:', error);
-            } else {
-                console.log("📄 Notes récupérées:", data);
+            if (!error) {
                 setNotes(data);
             }
         };
@@ -39,27 +35,21 @@ const NotesScreen = () => {
         fetchNotes();
     }, []);
 
-    // Ajouter une note
     const addNote = async () => {
         if (title.trim() === '' || noteText.trim() === '' || !userId) return;
-
-        console.log("Tentative d'ajout de note...");
 
         const { data, error } = await supabase
             .from('notes')
             .insert([{
                 title,
-                content: noteText,  // Utilisation correcte de "content"
-                user_id: userId,    // Utilisation correcte de "user_id"
-                is_private: false   // Valeur par défaut
+                content: noteText,
+                user_id: userId,
+                is_private: false
             }])
             .select()
             .single();
 
-        if (error) {
-            console.error('❌ Erreur lors de l’ajout de la note:', error);
-        } else {
-            console.log("✅ Note ajoutée avec succès:", data);
+        if (!error) {
             setNotes([data, ...notes]);
             setTitle('');
             setNoteText('');
@@ -67,16 +57,13 @@ const NotesScreen = () => {
         }
     };
 
-    // Supprimer une note
     const deleteNote = async (noteId) => {
         const { error } = await supabase
             .from('notes')
             .delete()
             .eq('id', noteId);
 
-        if (error) {
-            console.error('❌ Erreur lors de la suppression:', error);
-        } else {
+        if (!error) {
             setNotes(notes.filter(note => note.id !== noteId));
         }
     };
@@ -111,7 +98,6 @@ const NotesScreen = () => {
                         contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
                     />
 
-                    {/* Zone de texte avec titre */}
                     <View style={styles.inputContainer}>
                         <TextInput
                             style={styles.titleInput}
@@ -165,6 +151,7 @@ const styles = StyleSheet.create({
     noteTitle: {
         fontSize: 18,
         fontWeight: 'bold',
+        color: '#2196F3'
     },
     noteText: {
         fontSize: 16,
