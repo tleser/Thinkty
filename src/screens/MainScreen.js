@@ -37,19 +37,19 @@ const MainScreen = ({ navigation }) => {
             <Text style={styles.slogan}>Think in Security</Text>
 
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Mes Tâches')}>
-                <Text style={styles.buttonText}> Mes Tâches 📋</Text>
+                <Text style={styles.buttonText}> Mes Tâches</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Mes Notes')}>
-                <Text style={styles.buttonText}>Mes Notes 📝</Text>
+                <Text style={styles.buttonText}>Mes Notes</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>   Mes Mots de Passe 🔑</Text>
+                <Text style={styles.buttonText}>   Mes Mots de Passe</Text>
             </TouchableOpacity>
 
             <View style={styles.footer}>
-                <TouchableOpacity style={styles.profileButton} onPress={handleProfile}>
+                <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profil')}>
                     <Text style={styles.profileText}>Mon Profil</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -78,9 +78,15 @@ const styles = StyleSheet.create({
     },
     headerButton: {
         backgroundColor: '#2196F3',
-        padding: 10,
-        borderRadius: 5,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        borderRadius: 8,
         alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5,
     },
     headerButtonText: {
         color: 'white',
@@ -91,7 +97,7 @@ const styles = StyleSheet.create({
     logo: {
         width: 150,
         height: 150,
-        marginTop: 60,
+        marginTop: 50,
         marginBottom: 20,
     },
     title: {
@@ -108,12 +114,17 @@ const styles = StyleSheet.create({
         marginBottom: 30,
     },
     button: {
-        width: '80%',
+        width: '85%',
         backgroundColor: '#2196F3',
-        padding: 15,
-        borderRadius: 5,
+        paddingVertical: 15,
+        borderRadius: 10,
         marginVertical: 10,
         alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 6,
     },
     buttonText: {
         color: 'white',
@@ -125,33 +136,45 @@ const styles = StyleSheet.create({
         bottom: 60,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        width: '80%',
+        width: '85%',
     },
     logoutButton: {
         backgroundColor: '#FF3B30',
-        paddingVertical: 8,
-        paddingHorizontal: 15,
-        borderRadius: 5,
+        paddingVertical: 12,
+        borderRadius: 10,
         width: '48%',
         alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5,
     },
     logoutText: {
         color: 'white',
-        fontSize: 14,
+        fontSize: 16,
         fontWeight: 'bold',
+        textAlign: 'center',
     },
     profileButton: {
         backgroundColor: '#2196F3',
-        paddingVertical: 8,
-        paddingHorizontal: 15,
-        borderRadius: 5,
+        paddingVertical: 12,
+        borderRadius: 10,
         width: '48%',
         alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5,
     },
     profileText: {
         color: 'white',
-        fontSize: 14,
+        fontSize: 16,
         fontWeight: 'bold',
+        textAlign: 'center',
     },
     copyright: {
         position: 'absolute',
