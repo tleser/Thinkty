@@ -1,31 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, Alert, StyleSheet, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import {
+    View, Text, TextInput, TouchableOpacity, Modal, Alert,
+    StyleSheet, KeyboardAvoidingView, ScrollView, Platform
+} from 'react-native';
 import { supabase } from '../lib/supabase';
-import CryptoJS from 'crypto-js';
-
-const SECRET_KEY = "une_clé_secrète_très_sécurisée"; // 🔹 Stocke cette clé dans un .env pour plus de sécurité
-
-const encryptPassword = (password) => {
-    return CryptoJS.AES.encrypt(password, SECRET_KEY).toString();
-};
-
-const decryptPassword = (encryptedPassword) => {
-    const bytes = CryptoJS.AES.decrypt(encryptedPassword, SECRET_KEY);
-    return bytes.toString(CryptoJS.enc.Utf8);
-};
+import bcrypt from 'react-native-bcrypt';
 
 const ProfileScreen = () => {
     const [email, setEmail] = useState('');
-    const [generalPassword, setGeneralPassword] = useState('');
+    const [storedPasswordHash, setStoredPasswordHash] = useState(null);
+    const [enteredGeneralPassword, setEnteredGeneralPassword] = useState('');
     const [newGeneralPassword, setNewGeneralPassword] = useState('');
     const [accountPassword, setAccountPassword] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
 
+    // 🔹 Récupère l'utilisateur et le mot de passe général
     useEffect(() => {
         const fetchProfile = async () => {
+            console.log("🔹 Récupération des infos utilisateur...");
+
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
+                console.log("✅ Utilisateur trouvé :", user.email);
                 setEmail(user.email);
+
                 const { data, error } = await supabase
                     .from('profiles')
                     .select('general_password')
@@ -33,9 +31,10 @@ const ProfileScreen = () => {
                     .single();
 
                 if (error) {
-                    console.error(error);
+                    console.error("❌ Erreur récupération mot de passe général :", error);
                 } else {
-                    setGeneralPassword(decryptPassword(data.general_password));
+                    console.log("📡 Mot de passe général récupéré !");
+                    setStoredPasswordHash(data.general_password);
                 }
             }
         };
@@ -43,7 +42,10 @@ const ProfileScreen = () => {
         fetchProfile();
     }, []);
 
+    // 🔹 Fonction pour mettre à jour le mot de passe général
     const handleVerifyAndUpdatePassword = async () => {
+        console.log("🔹 Vérification du mot de passe du compte...");
+
         if (!newGeneralPassword) {
             Alert.alert("Erreur", "Le nouveau mot de passe ne peut pas être vide.");
             return;
@@ -55,20 +57,27 @@ const ProfileScreen = () => {
         });
 
         if (error) {
+            console.log("❌ Mot de passe du compte incorrect !");
             Alert.alert("Erreur", "Mot de passe incorrect.");
             return;
         }
 
-        const encryptedPassword = encryptPassword(newGeneralPassword);
+        console.log("✅ Connexion réussie ! Mise à jour du mot de passe général...");
+
+        // 🔒 Hash du nouveau mot de passe général
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(newGeneralPassword, salt);
 
         const { error: updateError } = await supabase
             .from('profiles')
-            .update({ general_password: encryptedPassword })
+            .update({ general_password: hashedPassword })
             .eq('user_id', data.user.id);
 
         if (updateError) {
+            console.log("❌ Impossible de mettre à jour le mot de passe !");
             Alert.alert("Erreur", "Impossible de mettre à jour le mot de passe.");
         } else {
+            console.log("✅ Mot de passe général mis à jour !");
             Alert.alert("Succès", "Mot de passe général mis à jour !");
             setModalVisible(false);
             setNewGeneralPassword('');
@@ -82,6 +91,7 @@ const ProfileScreen = () => {
                 <Text style={styles.title}>Mon Profil</Text>
                 <Text style={styles.label}>Adresse Email :</Text>
                 <Text style={styles.email}>{email}</Text>
+
                 <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
                     <Text style={styles.buttonText}>Modifier le mot de passe général</Text>
                 </TouchableOpacity>
@@ -91,9 +101,21 @@ const ProfileScreen = () => {
                         <View style={styles.modalContent}>
                             <Text style={styles.modalTitle}>Modifier le mot de passe général</Text>
                             <Text style={styles.label}>Mot de passe de votre compte :</Text>
-                            <TextInput style={styles.input} placeholder="Mot de passe du compte" secureTextEntry value={accountPassword} onChangeText={setAccountPassword} />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Mot de passe du compte"
+                                secureTextEntry
+                                value={accountPassword}
+                                onChangeText={setAccountPassword}
+                            />
                             <Text style={styles.label}>Nouveau mot de passe général :</Text>
-                            <TextInput style={styles.input} placeholder="Nouveau mot de passe général" secureTextEntry value={newGeneralPassword} onChangeText={setNewGeneralPassword} />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Nouveau mot de passe général"
+                                secureTextEntry
+                                value={newGeneralPassword}
+                                onChangeText={setNewGeneralPassword}
+                            />
                             <View style={styles.buttonContainer}>
                                 <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
                                     <Text style={styles.buttonText}>Annuler</Text>
