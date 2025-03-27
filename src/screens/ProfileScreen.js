@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
     modalContent: { width: '80%', backgroundColor: 'white', padding: 20, borderRadius: 10, alignItems: 'center' },
     modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
-    input: { width: '100%', padding: 10, borderWidth: 1, borderColor: '#ccc', borderRadius: 5, marginBottom: 10 },
+    input: { width: '100%', padding: 10, borderWidth: 1, borderColor: '#2196F3', borderRadius: 5, marginBottom: 10 },
     buttonContainer: { flexDirection: 'row', justifyContent: 'space-between', width: '100%' },
     cancelButton: { backgroundColor: 'red', padding: 10, borderRadius: 5, flex: 1, marginRight: 5, alignItems: 'center' },
     confirmButton: { backgroundColor: '#2196F3', padding: 10, borderRadius: 5, flex: 1, marginLeft: 5, alignItems: 'center' },

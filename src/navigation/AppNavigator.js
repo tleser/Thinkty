@@ -19,7 +19,7 @@ const AppNavigator = () => {
             <Stack.Screen name="Mes Notes" component={NotesScreen} />
             <Stack.Screen name="Détail de la note" component={NoteDetailScreen} />
             <Stack.Screen name="Profil" component={ProfileScreen} />
-            <Stack.Screen name="Passwords" component={PasswordScreen} />
+            <Stack.Screen name="Coffre-fort" component={PasswordScreen} />
         </Stack.Navigator>
     );
 };

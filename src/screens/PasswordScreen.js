@@ -1,18 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, Alert, Modal, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, Alert, Modal, StyleSheet, ActivityIndicator } from 'react-native';
 import { supabase } from '../lib/supabase';
-import CryptoJS from 'crypto-js';
-
-const SECRET_KEY = 'your-secret-key'; // Stocke cette clé en toute sécurité (peut être amélioré pour être plus sécurisé)
-
-const encryptPassword = (password) => {
-    return CryptoJS.AES.encrypt(password, SECRET_KEY).toString();
-};
-
-const decryptPassword = (encryptedPassword) => {
-    const bytes = CryptoJS.AES.decrypt(encryptedPassword, SECRET_KEY);
-    return bytes.toString(CryptoJS.enc.Utf8);
-};
+import bcrypt from 'react-native-bcrypt';
 
 const PasswordScreen = () => {
     const [passwords, setPasswords] = useState([]);
@@ -21,7 +10,8 @@ const PasswordScreen = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [userId, setUserId] = useState('');
-    const [generalPassword, setGeneralPassword] = useState(''); // Pour stocker le mot de passe général temporairement
+    const [generalPassword, setGeneralPassword] = useState('');
+    const [loadingReveal, setLoadingReveal] = useState(false); // État de chargement pour la révélation du mot de passe
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -33,7 +23,7 @@ const PasswordScreen = () => {
             if (data?.user) {
                 setUserId(data.user.id);
                 fetchPasswords(data.user.id);
-                fetchGeneralPassword(data.user.id); // Récupérer le mot de passe général
+                fetchGeneralPassword(data.user.id);
             }
         };
         fetchUser();
@@ -54,24 +44,23 @@ const PasswordScreen = () => {
         }
     };
 
-    // Récupérer le mot de passe général depuis la table "profiles"
     const fetchGeneralPassword = async (userId) => {
         const { data, error } = await supabase
             .from('profiles')
             .select('general_password')
             .eq('user_id', userId)
-            .single(); // Récupère uniquement une ligne
+            .single();
 
         if (error) {
             console.error("Erreur récupération du mot de passe général :", error);
         } else {
-            console.log("Mot de passe général récupéré :", data);
+            console.log("Mot de passe général récupéré (hash) :", data.general_password);
             setGeneralPassword(data.general_password);
         }
     };
 
     const handleAddPassword = async () => {
-        console.log("Tentative d'ajout d'un mot de passe"); // Ajoutons un log ici pour voir si la fonction est appelée
+        console.log("Tentative d'ajout d'un mot de passe");
 
         if (!title || !username || !password) {
             Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
@@ -85,19 +74,16 @@ const PasswordScreen = () => {
             return;
         }
 
-        const encryptedPassword = encryptPassword(password);
-        console.log("Mot de passe crypté", encryptedPassword); // Vérifie que le mot de passe est bien crypté
-
         try {
-            // Ajouter un mot de passe à la base de données
             const { data, error } = await supabase
                 .from('passwords')
                 .insert([{
                     user_id: userId,
                     title,
                     username,
-                    hashed_password: encryptedPassword
+                    hashed_password: password
                 }]);
+
 
             if (error) {
                 console.error("Erreur ajout mot de passe :", error);
@@ -105,8 +91,8 @@ const PasswordScreen = () => {
             } else {
                 console.log('Mot de passe ajouté avec succès', data);
                 Alert.alert('Succès', 'Mot de passe ajouté.');
-                fetchPasswords(userId); // Met à jour la liste des mots de passe
-                setModalVisible(false); // Ferme la modale
+                fetchPasswords(userId);
+                setModalVisible(false);
                 setTitle('');
                 setUsername('');
                 setPassword('');
@@ -118,7 +104,6 @@ const PasswordScreen = () => {
     };
 
     const handleRevealPassword = (passwordItem) => {
-        // Demander le mot de passe général pour vérifier
         Alert.prompt(
             "Vérification",
             "Entrez votre mot de passe général pour voir le mot de passe enregistré.",
@@ -129,19 +114,27 @@ const PasswordScreen = () => {
                 },
                 {
                     text: "OK",
-                    onPress: (inputPassword) => {
-                        // Vérifier si le mot de passe général est correct
-                        if (inputPassword === generalPassword) {
-                            try {
-                                // Déchiffrer le mot de passe
-                                const decryptedPassword = decryptPassword(passwordItem.hashed_password);
-                                Alert.alert("Mot de passe", `Le mot de passe est : ${decryptedPassword}`);
-                            } catch (error) {
-                                Alert.alert("Erreur", "Impossible de décrypter le mot de passe.");
+                    onPress: async (inputPassword) => {
+                        console.log("Mot de passe saisi :", inputPassword);
+                        console.log("Mot de passe général stocké (hash) :", generalPassword);
+
+                        setLoadingReveal(true); // Démarre le chargement
+
+                        bcrypt.compare(inputPassword, generalPassword, (err, isMatch) => {
+                            setLoadingReveal(false); // Arrête le chargement
+
+                            if (err) {
+                                console.error("Erreur de comparaison bcrypt :", err);
+                                Alert.alert("Erreur", "Une erreur est survenue.");
+                                return;
                             }
-                        } else {
-                            Alert.alert("Erreur", "Mot de passe général incorrect.");
-                        }
+
+                            if (isMatch) {
+                                Alert.alert("Mot de passe", `Le mot de passe est : ${passwordItem.hashed_password}`);
+                            } else {
+                                Alert.alert("Erreur", "Mot de passe général incorrect.");
+                            }
+                        });
                     }
                 }
             ],
@@ -161,7 +154,7 @@ const PasswordScreen = () => {
             Alert.alert('Erreur', "Impossible de supprimer le mot de passe.");
         } else {
             Alert.alert('Succès', 'Mot de passe supprimé.');
-            fetchPasswords(userId); // Met à jour la liste après suppression
+            fetchPasswords(userId);
         }
     };
 
@@ -195,7 +188,6 @@ const PasswordScreen = () => {
                 <Text style={styles.buttonText}>Ajouter un mot de passe</Text>
             </TouchableOpacity>
 
-            {/* Modal pour ajouter un mot de passe */}
             <Modal
                 visible={modalVisible}
                 animationType="slide"
@@ -235,39 +227,31 @@ const PasswordScreen = () => {
                     </View>
                 </View>
             </Modal>
+
+            {loadingReveal && (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#2196F3" />
+                    <Text style={styles.loadingText}>Chargement...</Text>
+                </View>
+            )}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: { flex: 1, padding: 20 },
-    title: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
+    title: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: '#2196F3' },
     passwordItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' },
     passwordText: { fontSize: 16 },
-    revealButton: { backgroundColor: '#4CAF50', padding: 10, borderRadius: 5, marginTop: 5 },
+    revealButton: { backgroundColor: '#2196F3', padding: 10, borderRadius: 5, marginTop: 5 },
     deleteButton: { backgroundColor: '#F44336', padding: 10, borderRadius: 5, marginTop: 5 },
     addButton: { backgroundColor: '#2196F3', padding: 15, borderRadius: 5, marginTop: 20, alignItems: 'center' },
     buttonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
-    modalOverlay: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContent: {
-        backgroundColor: 'white',
-        padding: 20,
-        borderRadius: 10,
-        width: '80%',
-    },
-    input: {
-        height: 40,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        marginBottom: 10,
-        paddingLeft: 10,
-        borderRadius: 5,
-    },
+    modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+    modalContent: { backgroundColor: 'white', padding: 20, borderRadius: 10, width: '80%' },
+    input: { height: 40, borderColor: '#2196F3', borderWidth: 1, marginBottom: 10, paddingLeft: 10, borderRadius: 5 },
+    loadingContainer: { position: 'absolute', top: '50%', left: '50%', transform: [{ translateX: -50 }, { translateY: -50 }] },
+    loadingText: { marginTop: 10, fontSize: 18, color: '#2196F3' },
 });
 
 export default PasswordScreen;

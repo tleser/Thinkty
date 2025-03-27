@@ -44,7 +44,7 @@ const MainScreen = ({ navigation }) => {
                 <Text style={styles.buttonText}>Mes Notes</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Passwords')}>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Coffre-fort')}>
                 <Text style={styles.buttonText}>   Mes Mots de Passe</Text>
             </TouchableOpacity>
 
