@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { supabase } from '../lib/supabase';
 import bcrypt from 'react-native-bcrypt';
+import isaac from 'isaac';
 
 const ProfileScreen = () => {
     const [email, setEmail] = useState('');
@@ -64,9 +65,15 @@ const ProfileScreen = () => {
 
         console.log("✅ Connexion réussie ! Mise à jour du mot de passe général...");
 
-        // 🔒 Hash du nouveau mot de passe général
+        // Hash du nouveau mot de passe général
+        bcrypt.setRandomFallback((len) => {
+            const buf = new Uint8Array(len);
+            return buf.map(() => Math.floor(isaac.random() * 256));
+        });
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(newGeneralPassword, salt);
+
+        console.log(hashedPassword)
 
         const { error: updateError } = await supabase
             .from('profiles')

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, Alert, Modal, StyleSheet, ActivityIndicator } from 'react-native';
 import { supabase } from '../lib/supabase';
 import bcrypt from 'react-native-bcrypt';
+import CryptoJS from 'react-native-crypto-js';
 
 const PasswordScreen = () => {
     const [passwords, setPasswords] = useState([]);
@@ -75,13 +76,20 @@ const PasswordScreen = () => {
         }
 
         try {
+            const passphrase = global.secretkey
+            console.log('clé secrete', passphrase)
+            const encrypted = CryptoJS.AES.encrypt(password, passphrase).toString();
+
+            const bytes = CryptoJS.AES.decrypt(encrypted, passphrase);
+            const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+            console.log([password, encrypted, decrypted])
             const { data, error } = await supabase
                 .from('passwords')
                 .insert([{
                     user_id: userId,
                     title,
                     username,
-                    hashed_password: password
+                    hashed_password: encrypted
                 }]);
 
 
@@ -130,7 +138,21 @@ const PasswordScreen = () => {
                             }
 
                             if (isMatch) {
-                                Alert.alert("Mot de passe", `Le mot de passe est : ${passwordItem.hashed_password}`);
+                                // Déchiffrement du mot de passe avec la clé secrète
+                                try {
+                                    const passphrase = global.secretkey;
+                                    console.log("Clé secrète utilisée pour le déchiffrement :", passphrase);
+
+                                    const bytes = CryptoJS.AES.decrypt(passwordItem.hashed_password, passphrase);
+                                    const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
+
+                                    console.log("Mot de passe déchiffré :", decryptedPassword);
+
+                                    Alert.alert("Mot de passe", `Le mot de passe est : ${decryptedPassword}`);
+                                } catch (error) {
+                                    console.error("Erreur lors du déchiffrement :", error);
+                                    Alert.alert("Erreur", "Impossible de déchiffrer le mot de passe.");
+                                }
                             } else {
                                 Alert.alert("Erreur", "Mot de passe général incorrect.");
                             }
@@ -140,7 +162,7 @@ const PasswordScreen = () => {
             ],
             "secure-text"
         );
-    };
+    }
 
     const handleDeletePassword = async (passwordItem) => {
         const { error } = await supabase

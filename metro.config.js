@@ -4,7 +4,7 @@ module.exports = (async () => {
     const defaultConfig = await getDefaultConfig(__dirname);
 
     defaultConfig.resolver.extraNodeModules = {
-        crypto: require.resolve("react-native-crypto"),
+        crypto: require.resolve("react-native-crypto-js"),
     };
 
     return defaultConfig;
