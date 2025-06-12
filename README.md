@@ -1,4 +1,4 @@
-# 🧠 Thinkty
+# 🧠 Thinkty   Lien vers la version SDK 53: https://github.com/tleser/Thinkty53
 
 **Thinkty** est une application mobile développée en **React Native** avec **Expo** et **Supabase**.  
 Elle permet aux utilisateurs de **gérer leurs tâches**, **stocker des notes**, et **enregistrer des mots de passe en toute sécurité**.
